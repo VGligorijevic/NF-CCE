@@ -32,7 +32,7 @@ def mltplx_from_mat(filename, net_name):
         print "### Loading CoRA file..."
         Nets = [D['A'][:,:,i] for i in range(D['A'].shape[2])]
         ground_idx = D['C']
-        ground_idx = np.reshape(ground_idx, ground_idx.shape[0])
+        ground_idx = np.reshape(ground_idx, Nets[0].shape[0])
     if net_name == 'mit':
         print "### Loading MIT file..."
         Nets.append(D['celltower_graph'])
@@ -41,7 +41,7 @@ def mltplx_from_mat(filename, net_name):
         ground_idx = np.zeros((Nets[0].shape[0], 1), dtype=int)
         for k in range(D['C'].shape[0]):
             ground_idx[D['C'][k]-1] = k+1
-        ground_idx = np.reshape(ground_idx, ground_idx.shape[0])
+        ground_idx = np.reshape(ground_idx, Nets[0].shape[0])
 
     return Nets, ground_idx
 

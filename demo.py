@@ -8,6 +8,7 @@ import pylab as pl
 from snmf import SNMF
 from csnmf import CSNMF
 from preprocessing import nets_from_mat, mltplx_from_mat, net_normalize
+from cluster import nmf_clust, spect_clust, clust_eval
 
 
 ## create symmetric matrix (test)
@@ -20,18 +21,31 @@ from preprocessing import nets_from_mat, mltplx_from_mat, net_normalize
 #Nets = Nets[:3]
 
 ## load Dong data
-Nets, ground_idx = mltplx_from_mat("../data/dong/cora.mat", 'cora')
+Nets, ground_idx = mltplx_from_mat("../data/dong/mit.mat", 'mit')
 Nets = net_normalize(Nets)
 
 #objSNMF = SNMF(Nets[1], 50, init='rnda', displ='true')
 #res_snmf = objSNMF.fit()
 
-objCSNMF = CSNMF(Nets, max(ground_idx), alpha = 0.5, init = 'svd', displ = False)
+objCSNMF = CSNMF(Nets, max(ground_idx), alpha = 0.5, init = 'rnda', displ = False)
 res_csnmf = objCSNMF.fit()
 
 
 H = np.mat(res_csnmf.matrices[0])
 J = res_csnmf.objfun_vals
+
+## Clustering performance
+spect_idx = spect_clust(H, max(ground_idx))
+nmf_idx = nmf_clust(H)
+
+print ground_idx.shape
+print spect_idx.shape
+print nmf_idx.shape
+
+print "### NMF clustering: "
+print clust_eval(ground_idx, nmf_idx)
+print "### Spectral clustering: "
+print clust_eval(ground_idx, spect_idx)
 
 # show results
 pl.figure(1)
