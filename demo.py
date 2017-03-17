@@ -7,7 +7,7 @@ import pylab as pl
 
 from snmf import SNMF
 from csnmf import CSNMF
-from preprocessing import nets_from_mat
+from preprocessing import nets_from_mat, mltplx_from_mat, net_normalize
 
 
 ## create symmetric matrix (test)
@@ -16,15 +16,17 @@ from preprocessing import nets_from_mat
 #X = X - np.diag(np.diag(X))
 
 ## load Mostafavi data
-genes, _, Nets, _ = nets_from_mat("data/mostafavi/human_and_go.mat")
-Nets = Nets[:3]
+#genes, _, Nets, _ = nets_from_mat("../data/mostafavi/human_and_go.mat")
+#Nets = Nets[:3]
 
-
+## load Dong data
+Nets, ground_idx = mltplx_from_mat("../data/dong/cora.mat", 'cora')
+Nets = net_normalize(Nets)
 
 #objSNMF = SNMF(Nets[1], 50, init='rnda', displ='true')
 #res_snmf = objSNMF.fit()
 
-objCSNMF = CSNMF(Nets, 30, alpha = 0.5, init = 'rnda', displ = True)
+objCSNMF = CSNMF(Nets, max(ground_idx), alpha = 0.5, init = 'svd', displ = False)
 res_csnmf = objCSNMF.fit()
 
 
@@ -34,7 +36,7 @@ J = res_csnmf.objfun_vals
 # show results
 pl.figure(1)
 pl.title("Cluster indicator matrix")
-pl.imshow(H[1:500, :], interpolation='nearest')
+pl.imshow(H, interpolation='nearest')
 #pl.imshow(H*H.T, interpolation='nearest')
 pl.colorbar()
 

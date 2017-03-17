@@ -24,4 +24,60 @@ def nets_from_mat(filename):
 
     return genes, goterms, Nets, GO
 
+def mltplx_from_mat(filename, net_name):
+    D = sio.loadmat(filename, squeeze_me=True)
+    Nets = []
+    ground_idx = []
+    if net_name == 'cora':
+        print "### Loading CoRA file..."
+        Nets = [D['A'][:,:,i] for i in range(D['A'].shape[2])]
+        ground_idx = D['C']
+        ground_idx = np.reshape(ground_idx, ground_idx.shape[0])
+    if net_name == 'mit':
+        print "### Loading MIT file..."
+        Nets.append(D['celltower_graph'])
+        Nets.append(D['phone_graph'])
+        Nets.append(D['bt_graph'])
+        ground_idx = np.zeros((Nets[0].shape[0], 1), dtype=int)
+        for k in range(D['C'].shape[0]):
+            ground_idx[D['C'][k]-1] = k+1
+        ground_idx = np.reshape(ground_idx, ground_idx.shape[0])
 
+    return Nets, ground_idx
+
+def _net_normalize(X):
+    """
+    Normalizing networks according to node degrees.
+    """
+    if X.min() < 0:
+        print "### Negative entries in the matrix are not allowed!"
+        X[X<0] = 0
+        print "### Matrix converted to nonnegative matrix."
+        print
+    if (X.T == X).all():
+        pass
+    else:
+        print "### Matrix not symmetric."
+        X = X + X.T - np.diag(np.diag(X))
+        print "### Matrix converted to symmetric."
+
+    ### normalizing the matrix
+    deg = X.sum(axis=1).flatten()
+    deg = np.divide(1., np.sqrt(deg))
+    deg[np.isinf(deg)] = 0
+    D = np.diag(deg)
+    X = D.dot(X.dot(D))
+
+    return X
+
+def net_normalize(Net):
+    """
+    Normalize Nets or list of Nets.
+    """
+    if isinstance(Net, list):
+        for i in range(len(Net)):
+            Net[i] = _net_normalize(Net[i])
+    else:
+        Net = _net_normalize(Net)
+
+    return Net
