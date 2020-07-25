@@ -21,7 +21,7 @@ from cluster import nmf_clust, spect_clust, clust_eval
 #Nets = Nets[:3]
 
 ## load Dong data
-Nets, ground_idx = mltplx_from_mat("../data/dong/mit.mat", 'mit')
+Nets, ground_idx = mltplx_from_mat("../data/nets/mit.mat", 'mit')
 Nets = net_normalize(Nets)
 
 #objSNMF = SNMF(Nets[1], 50, init='rnda', displ='true')
